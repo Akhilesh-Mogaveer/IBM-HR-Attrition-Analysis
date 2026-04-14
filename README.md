@@ -1,6 +1,5 @@
 # IBM HR Employee Attrition Analysis
 
-![Dashboard Preview](Dashboard/screenshot/Executive_Overview.png)
 
 ## Project Overview
 
