@@ -30,8 +30,7 @@ The goal was to answer the business question:
 - **Features:** 35 columns covering demographics, job details, compensation, tenure, and satisfaction scores
 - **Target Variable:** Attrition (Yes/No)
 
----
-
+```
 ## Database Schema
 
 The original flat CSV was normalized into 5 relational tables using a star schema:
@@ -43,8 +42,7 @@ hr_employee_attrition (parent)
 └── attrition_status  — Target (Attrition, PerformanceRating)
 
 All tables linked via `EmployeeNumber` as primary key with foreign key constraints.
-
----
+```
 
 ## SQL Techniques Used
 
