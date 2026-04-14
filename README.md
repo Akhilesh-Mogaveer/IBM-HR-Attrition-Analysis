@@ -136,14 +136,21 @@ Identified via CTE + multi-table JOIN analysis:
 5. **Create travel allowances for frequent travelers** — 24.91% attrition rate
 6. **Focus retention on employees under 25** — highest age group attrition at 35.77%
 
----
-
-## Project Structure
-hr-attrition-analysis/
+```
+IBM-HR-Attrition-Analysis/
+│
 ├── README.md
-├── dataset/
-│   └── WA_Fn-UseC_-HR-Employee-Attrition.csv
-├── sql/
+│
+├── Data/
+│   ├── WA_Fn-UseC_-HR-Employee-Attrition.csv
+│   └── normalized/
+│       ├── attrition_status.csv
+│       ├── compensation.csv
+│       ├── employees.csv
+│       ├── job_details.csv
+│       └── tenure.csv
+│
+├── SQL/
 │   ├── 01_creation.sql
 │   ├── 02_exploration.sql
 │   ├── 03_department_role_analysis.sql
@@ -151,15 +158,13 @@ hr-attrition-analysis/
 │   ├── 05_tenure_analysis.sql
 │   ├── 06_overtime_analysis.sql
 │   └── 07_CTE_cohort_analysis.sql
-├── dashboard/
-│   ├── hr_attrition_dashboard.pbix
-│   └── screenshots/
-│       ├── page1_overview.png
-│       └── page2_detailed.png
-└── insights/
-└── key_findings.md
-
----
+│
+└── Dashboard/
+    ├── IBM-HR-Attrition-Analysis.pbix
+    └── screenshot/
+        ├── Executive_Overview.png
+        └── Detailed_Attrition_Analysis.png
+```
 
 ## Author
 
