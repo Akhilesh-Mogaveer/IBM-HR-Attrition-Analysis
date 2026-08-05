@@ -1,14 +1,18 @@
-# IBM HR Employee Attrition Analysis
-
+# IBM HR Employee Attrition — End-to-End Analytics & ML Pipeline
 
 ## Project Overview
 
-This project analyzes IBM HR employee attrition data to identify the key factors 
-driving employee turnover. The analysis was performed using MySQL for data modeling 
-and querying, and Power BI for interactive dashboard visualization.
+This project analyzes IBM HR employee attrition data to identify the key factors
+driving employee turnover — and goes a step further to **predict** which employees
+are at risk of leaving. It's built as a complete pipeline: from relational database
+design, through business intelligence dashboards, to a deployed machine learning
+prediction app.
 
-The goal was to answer the business question:
-**"Why are employees leaving, and which groups are most at risk?"**
+The project answers two connected business questions:
+1. **"Why are employees leaving, and which groups are most at risk?"** (SQL + Power BI)
+2. **"Can we predict which individual employees are likely to leave?"** (Python + ML)
+
+**🔗 Live App:** [Employee Attrition Predictor](https://ibm-hr-attrition-predictor.streamlit.app/)
 
 ---
 
@@ -17,8 +21,10 @@ The goal was to answer the business question:
 | Tool | Purpose |
 |------|---------|
 | MySQL | Database design, normalization, querying |
-| Power BI | Interactive dashboard and visualization |
-| DAX | Calculated measures and columns |
+| Power BI / DAX | Interactive dashboard and visualization |
+| Python (Pandas, Seaborn, Matplotlib) | Exploratory data analysis |
+| scikit-learn | Machine learning modeling |
+| Streamlit | Deployed prediction web app |
 | Excel | Initial data exploration |
 
 ---
@@ -30,22 +36,21 @@ The goal was to answer the business question:
 - **Features:** 35 columns covering demographics, job details, compensation, tenure, and satisfaction scores
 - **Target Variable:** Attrition (Yes/No)
 
-```
-## Database Schema
+---
+
+## Part 1: SQL & Database Design
 
 The original flat CSV was normalized into 5 relational tables using a star schema:
 hr_employee_attrition (parent)
-├── employee          — Demographics (Age, Gender, Education)
-├── job_details       — Role info (Department, JobRole, OverTime)
-├── compensation      — Salary data (MonthlyIncome, SalaryHike)
-├── tenure            — Experience (YearsAtCompany, YearsWithManager)
-└── attrition_status  — Target (Attrition, PerformanceRating)
+├── employee — Demographics (Age, Gender, Education)
+├── job_details — Role info (Department, JobRole, OverTime)
+├── compensation — Salary data (MonthlyIncome, SalaryHike)
+├── tenure — Experience (YearsAtCompany, YearsWithManager)
+└── attrition_status — Target (Attrition, PerformanceRating)
 
 All tables linked via `EmployeeNumber` as primary key with foreign key constraints.
-```
 
-## SQL Techniques Used
-
+### SQL Techniques Used
 - Multi-table JOINs across 5 normalized tables
 - Conditional aggregation using `CASE WHEN` inside `SUM()`
 - Window functions — `RANK()`, `ROW_NUMBER()`
@@ -56,76 +61,131 @@ All tables linked via `EmployeeNumber` as primary key with foreign key constrain
 
 ---
 
-## Key Findings
-
-### Overall
-- **16.12% overall attrition rate** — 237 out of 1,470 employees left
-- Employees who left earned **$2,046/month less** than those who stayed
-
-### Department & Role
-- **Sales has highest department attrition at 20.63%** — 1 in 5 leaving
-- **Sales Representatives bleed most at 39.76%** — nearly 2 in 5 leaving
-- Managers and Research Directors most loyal — **under 5% attrition**
-- R&D most stable department at **13.84%**
-
-### Salary
-- Leavers earned **$4,787/month** vs **$6,833** for stayers
-- Sales Representatives lowest paid at **$2,626/month** — directly explains high attrition
-
-### Tenure
-- **First 2 years are the danger zone** — 29.82% attrition in 0-2 year group
-- Year 1 alone has **34.5% attrition** — critical onboarding failure point
-- Employees past 2 years drop to 13.82% — loyalty builds with time
-- **10+ year employees most loyal at 8.13%**
-
-### Overtime & Satisfaction
-- Overtime employees leave at **30.53% vs 10.44%** — 3x higher attrition
-- Lowest job satisfaction (score 1) drives **22.84% attrition**
-- Worst work-life balance drives **31.25% attrition**
-
-### Age & Travel
-- **Under 25 employees highest attrition at 35.77%**
-- Frequent travelers at **24.91%** vs non-travelers at **8.00%**
-
-### High Risk Employee Profile
-Identified via CTE + multi-table JOIN analysis:
-- Young employees (20-40 years) in R&D
-- Earning below $4,000/month
-- Doing overtime with job satisfaction score of 1
-- Leaving within first 2 years of joining
-
----
-
-## Power BI Dashboard
+## Part 2: Power BI Dashboard
 
 ### Page 1 — Executive Overview
 ![Overview](Dashboard/screenshot/Executive_Overview.png)
-
 - 4 KPI cards — Total Employees, Employees Left, Avg Salary (Left), Attrition Rate
 - Attrition Rate by Job Role — color coded by severity
 - Attrition Rate by OverTime
 - Interactive slicers — Department, Gender, OverTime
-- Key Insights section
 
 ### Page 2 — Detailed Analysis
 ![Deep Dive](Dashboard/screenshot/Detailed_Attrition_Analysis.png)
-
 - Attrition Rate by Department (donut chart)
-- Attrition Rate by Age Group
-- Attrition Rate by Job Satisfaction
-- Attrition Rate by Business Travel
+- Attrition Rate by Age Group, Job Satisfaction, Business Travel
 - Attrition Rate by Years at Company (trend line)
-- Recommendations section
 
-### Dashboard Features
-- Color coded severity — Red (high risk) → Orange (medium) → Green (low risk)
-- Navigation buttons between pages
-- Synced slicers across both pages
-- DAX measures for Attrition Rate, Total Employees, Employees Left, Avg Salary
+### Key SQL/BI Findings
+- **16.12% overall attrition rate** — 237 of 1,470 employees left
+- **Sales Representatives bleed most at 39.76%** — lowest paid role at $2,626/month
+- **First 2 years are the danger zone** — 29.82% attrition, Year 1 alone at 34.5%
+- **Overtime employees leave at 3x the rate** — 30.53% vs 10.44%
+- **Under-25 employees highest attrition at 35.77%**
+- **High-risk profile:** young R&D employees, <$4,000/month, overtime, low job satisfaction, <2 years tenure
+
+*(Full findings and recommendations in [previous version / analysis notes]).*
 
 ---
 
-## Recommendations
+## Part 3: Python EDA & Machine Learning
+
+Building on the SQL groundwork, the normalized tables were rejoined into a single
+flat dataset and analyzed in Python to build a predictive model.
+
+📓 **Notebook:** [`notebooks/IBM_HR_Attrition.ipynb`](notebooks/IBM_HR_Attrition.ipynb)
+
+### Exploratory Data Analysis
+- Confirmed ~84/16 class imbalance in Attrition
+- Univariate/bivariate analysis on OverTime, Department, Income, Age, Tenure
+- Correlation heatmap identifying multicollinearity among tenure-related features
+
+### Preprocessing
+- Label encoding for binary fields (Attrition, Gender, OverTime)
+- One-hot encoding for nominal categoricals (Department, JobRole, MaritalStatus, EducationField, BusinessTravel)
+- Stratified 80/20 train-test split
+- Feature standardization (StandardScaler)
+
+### Modeling & Results
+
+| Model | Recall (Attrition) | Precision | ROC-AUC |
+|---|---|---|---|
+| **Logistic Regression** ✅ | **0.81*** | 0.35 | **0.80** |
+| Random Forest (tuned) | 0.34 | 0.44 | 0.78 |
+| Gradient Boosting (weighted) | 0.47 | 0.40 | 0.78 |
+
+*\*After tuning the decision threshold from 0.5 → 0.4 to prioritize recall, since missing an at-risk employee is more costly than a false alarm in an HR retention context.*
+
+**Logistic Regression was selected as the final model** — despite being the simplest
+of the three, it outperformed both ensemble methods, suggesting attrition drivers in
+this dataset are largely linear/additive.
+
+### Top Predictive Features
+Feature coefficients revealed the strongest attrition drivers:
+- **Increases risk:** OverTime, Frequent Business Travel, Job Role (Lab Technician, Sales Rep), Single marital status
+- **Decreases risk:** Total Working Years, Job Role (Research Director)
+
+---
+
+## Part 4: Deployed Prediction App
+
+An interactive Streamlit app lets users input an employee profile and receive a
+real-time attrition risk prediction.
+
+**🔗 Live App:** [Employee Attrition Predictor](https://ibm-hr-attrition-predictor.streamlit.app/)
+📁 **Source:** [`attrition-app/`](attrition-app/)
+
+**Features:**
+- Sidebar inputs for key predictive features (OverTime, Travel, Role, Tenure, etc.)
+- Risk probability gauge with color-graded zones
+- Dynamic risk/protective factor breakdown based on the trained model's coefficients
+- Dark theme matching portfolio branding
+
+---
+
+## Project Structure
+IBM-HR-Attrition-Analysis/
+│
+├── README.md
+│
+├── Data/
+│ ├── WA_Fn-UseC_-HR-Employee-Attrition.csv
+│ ├── hr_attrition_flat.csv
+│ └── normalized/
+│   ├── attrition_status.csv
+│   ├── compensation.csv
+│   ├── employees.csv
+│   ├── job_details.csv
+│   └── tenure.csv
+│
+├── SQL/
+│ ├── 01_creation.sql
+│ ├── 02_exploration.sql
+│ ├── 03_department_role_analysis.sql
+│ ├── 04_salary_analysis.sql
+│ ├── 05_tenure_analysis.sql
+│ ├── 06_overtime_analysis.sql
+│ └── 07_CTE_cohort_analysis.sql
+│
+├── Dashboard/
+│ ├── IBM-HR-Attrition-Analysis.pbix
+│ └── screenshot/
+│   ├── Executive_Overview.png
+│   └── Detailed_Attrition_Analysis.png
+│
+├── notebooks/
+│ └── IBM_HR_Attrition.ipynb
+│
+└── attrition-app/
+  ├── app.py
+  ├── attrition_model.pkl
+  ├── requirements.txt
+  └── .streamlit/
+    └── config.toml
+
+---
+
+## Recommendations (Business)
 
 1. **Urgently review Sales Representative compensation** — 39.76% attrition is unsustainable
 2. **Reduce mandatory overtime** — overtime employees leave at 3x the rate of others
@@ -133,42 +193,13 @@ Identified via CTE + multi-table JOIN analysis:
 4. **Introduce quarterly job satisfaction surveys** — low satisfaction directly predicts attrition
 5. **Create travel allowances for frequent travelers** — 24.91% attrition rate
 6. **Focus retention on employees under 25** — highest age group attrition at 35.77%
+7. **Deploy the ML model proactively** — flag high-risk employees (probability ≥ 0.4) for early retention conversations
 
-```
-IBM-HR-Attrition-Analysis/
-│
-├── README.md
-│
-├── Data/
-│   ├── WA_Fn-UseC_-HR-Employee-Attrition.csv
-│   └── normalized/
-│       ├── attrition_status.csv
-│       ├── compensation.csv
-│       ├── employees.csv
-│       ├── job_details.csv
-│       └── tenure.csv
-│
-├── SQL/
-│   ├── 01_creation.sql
-│   ├── 02_exploration.sql
-│   ├── 03_department_role_analysis.sql
-│   ├── 04_salary_analysis.sql
-│   ├── 05_tenure_analysis.sql
-│   ├── 06_overtime_analysis.sql
-│   └── 07_CTE_cohort_analysis.sql
-│
-└── Dashboard/
-    ├── IBM-HR-Attrition-Analysis.pbix
-    └── screenshot/
-        ├── Executive_Overview.png
-        └── Detailed_Attrition_Analysis.png
-```
+---
 
 ## Author
 
 **Akhilesh**
 - CertNexus Certified Data Analytics Professional
-- Skills: Python, MySQL, Power BI, Excel, Pandas, Matplotlib, Seaborn
+- Skills: Python, SQL, Power BI, scikit-learn, Streamlit, Pandas, Matplotlib, Seaborn
 - [LinkedIn](https://linkedin.com/in/akhilesh-1109ma) | [GitHub](https://github.com/Akhilesh-Mogaveer)
-
----
