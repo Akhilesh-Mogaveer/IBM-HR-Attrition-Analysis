@@ -41,13 +41,14 @@ The project answers two connected business questions:
 ## Part 1: SQL & Database Design
 
 The original flat CSV was normalized into 5 relational tables using a star schema:
+```
 hr_employee_attrition (parent)
-├── employee — Demographics (Age, Gender, Education)
-├── job_details — Role info (Department, JobRole, OverTime)
-├── compensation — Salary data (MonthlyIncome, SalaryHike)
-├── tenure — Experience (YearsAtCompany, YearsWithManager)
-└── attrition_status — Target (Attrition, PerformanceRating)
-
+├── employee          — Demographics (Age, Gender, Education)
+├── job_details       — Role info (Department, JobRole, OverTime)
+├── compensation      — Salary data (MonthlyIncome, SalaryHike)
+├── tenure             — Experience (YearsAtCompany, YearsWithManager)
+└── attrition_status  — Target (Attrition, PerformanceRating)
+```
 All tables linked via `EmployeeNumber` as primary key with foreign key constraints.
 
 ### SQL Techniques Used
@@ -144,46 +145,46 @@ real-time attrition risk prediction.
 ---
 
 ## Project Structure
+```
 IBM-HR-Attrition-Analysis/
 │
 ├── README.md
 │
 ├── Data/
-│ ├── WA_Fn-UseC_-HR-Employee-Attrition.csv
-│ ├── hr_attrition_flat.csv
-│ └── normalized/
-│   ├── attrition_status.csv
-│   ├── compensation.csv
-│   ├── employees.csv
-│   ├── job_details.csv
-│   └── tenure.csv
+│   ├── WA_Fn-UseC_-HR-Employee-Attrition.csv
+│   ├── hr_attrition_flat.csv
+│   └── normalized/
+│       ├── attrition_status.csv
+│       ├── compensation.csv
+│       ├── employees.csv
+│       ├── job_details.csv
+│       └── tenure.csv
 │
 ├── SQL/
-│ ├── 01_creation.sql
-│ ├── 02_exploration.sql
-│ ├── 03_department_role_analysis.sql
-│ ├── 04_salary_analysis.sql
-│ ├── 05_tenure_analysis.sql
-│ ├── 06_overtime_analysis.sql
-│ └── 07_CTE_cohort_analysis.sql
+│   ├── 01_creation.sql
+│   ├── 02_exploration.sql
+│   ├── 03_department_role_analysis.sql
+│   ├── 04_salary_analysis.sql
+│   ├── 05_tenure_analysis.sql
+│   ├── 06_overtime_analysis.sql
+│   └── 07_CTE_cohort_analysis.sql
 │
 ├── Dashboard/
-│ ├── IBM-HR-Attrition-Analysis.pbix
-│ └── screenshot/
-│   ├── Executive_Overview.png
-│   └── Detailed_Attrition_Analysis.png
+│   ├── IBM-HR-Attrition-Analysis.pbix
+│   └── screenshot/
+│       ├── Executive_Overview.png
+│       └── Detailed_Attrition_Analysis.png
 │
 ├── notebooks/
-│ └── IBM_HR_Attrition.ipynb
+│   └── IBM_HR_Attrition.ipynb
 │
 └── attrition-app/
-  ├── app.py
-  ├── attrition_model.pkl
-  ├── requirements.txt
-  └── .streamlit/
-    └── config.toml
-
----
+    ├── app.py
+    ├── attrition_model.pkl
+    ├── requirements.txt
+    └── .streamlit/
+        └── config.toml
+```
 
 ## Recommendations (Business)
 
