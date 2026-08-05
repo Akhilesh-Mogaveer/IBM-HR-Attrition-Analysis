@@ -2,9 +2,12 @@ import streamlit as st
 import pandas as pd
 import pickle
 import plotly.graph_objects as go
+import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, 'attrition_model.pkl')
 
-with open('attrition_model.pkl', 'rb') as f:
+with open(MODEL_PATH, 'rb') as f:
     artifacts = pickle.load(f)
 
 model = artifacts['model']
